@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scrapbook Journal</title>
+<style>
+body { margin:0; background:#d2b48c; font-family:'Comic Sans MS', cursive; user-select:none; overflow-x:hidden;}
+.toolbar { background:#5a4634; color:white; padding:10px; display:flex; justify-content:space-between; align-items:center;}
+.toolbar input, .toolbar select, .toolbar button { margin-right:10px;}
+.page { width:100%; height:90vh; background:#c9a66b; border:2px solid #5a4634; margin:0 auto; position:relative; overflow:hidden;}
+.sticker { position:absolute; cursor:grab; font-size:40px; padding:5px 10px; background:white; border:2px dashed #333; border-radius:8px;}
+.controls { text-align:center; margin:10px;}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+<input type="text" id="textInput" placeholder="Type here...">
+<select id="packSelect">
+<option value="denim">Denim Bubble</option>
+<option value="wood">Wooden</option>
+<option value="neon">Retro Neon</option>
+<option value="glitter">Glitter</option>
+<option value="money">Money</option>
+<option value="girly">Girly</option>
+</select>
+<button onclick="addText()">Add Text</button>
+<button onclick="addEmoji()">➕ Emoji Sticker</button>
+<button onclick="newPage()">📖 New Page</button>
+</div>
+
+<div id="pageContainer">
+<div class="page" id="page-1"></div>
+</div>
+
+<div class="controls">
+<button onclick="prevPage()">⬅ Prev</button>
+<span id="pageNumber">Page 1</span>
+<button onclick="nextPage()">Next ➡</button>
+</div>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+
+function addText() {
+const text=document.getElementById('textInput').value;
+const pack=document.getElementById('packSelect').value;
+if(!text)return;
+const span=document.createElement('div');
+span.className='sticker';
+span.textContent=text;
+if(pack==="denim"){span.style.background="#87a1c4"; span.style.border="2px solid #304674";}
+else if(pack==="wood"){span.style.background="#deb887"; span.style.border="2px solid #5a4634";}
+else if(pack==="neon"){span.style.background="black"; span.style.color="lime";}
+else if(pack==="glitter"){span.style.background="pink"; span.style.color="white"; span.style.textShadow="0 0 5px gold";}
+else if(pack==="money"){span.style.background="green"; span.style.color="white";}
+else if(pack==="girly"){span.style.background="lightpink"; span.style.color="hotpink";}
+span.style.left="50px"; span.style.top="50px";
+makeDraggable(span);
+document.getElementById(`page-${currentPage}`).appendChild(span);
+document.getElementById('textInput').value="";
+}
+
+function addEmoji() {
+const emojiList=["🎀","💎","💖","🌸","💰","🧸","✨","🍓"];
+const emoji=emojiList[Math.floor(Math.random()*emojiList.length)];
+const span=document.createElement('div');
+span.className='sticker'; span.textContent=emoji;
+span.style.background="transparent"; span.style.border="none"; span.style.fontSize="50px"; 
+span.style.left="100px"; span.style.top="100px"; makeDraggable(span);
+document.getElementById(`page-${currentPage}`).appendChild(span);
+}
+
+function makeDraggable(el){
+el.onmousedown=function(event){
+event.preventDefault();
+let shiftX=event.clientX-el.getBoundingClientRect().left;
+let shiftY=event.clientY-el.getBoundingClientRect().top;
+function moveAt(pageX,pageY){el.style.left=pageX-shiftX+'px'; el.style.top=pageY-shiftY+'px';}
+function onMouseMove(event){moveAt(event.pageX,event.pageY);}
+document.addEventListener('mousemove',onMouseMove);
+el.onmouseup=function(){document.removeEventListener('mousemove',onMouseMove); el.onmouseup=null;};};
+el.ondragstart=function(){return false;};
+}
+
+function newPage(){
+totalPages++;
+const page=document.createElement('div');
+page.className="page"; page.id=`page-${totalPages}`;
+document.getElementById('pageContainer').appendChild(page);
+goToPage(totalPages);
+}
+
+function goToPage(num){
+if(num<1||num>totalPages)return;
+document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+document.getElementById(`page-${num}`).style.display='block';
+currentPage=num;
+document.getElementById('pageNumber').textContent="Page "+num;
+}
+
+function nextPage(){goToPage(currentPage+1);}
+function prevPage(){goToPage(currentPage-1);}
+goToPage(1);
+</script>
+
+</body>
+</html>
